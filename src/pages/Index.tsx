@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { BookMarked, Bookmark, Settings as SettingsIcon, Info, Sun, Moon } from "lucide-react";
+import { BookMarked, Bookmark, Settings as SettingsIcon, Info, Sun, Moon, Book } from "lucide-react";
 import { getLastRead, type LastRead } from "@/data/venmurasu";
 import { useSettings } from "@/hooks/useSettings";
-import logo from "@/assets/logo.png";
 import cardBooks from "@/assets/card-books.jpg";
 import cardRelationships from "@/assets/card-relationships.jpg";
 import cardMap from "@/assets/card-map.jpg";
