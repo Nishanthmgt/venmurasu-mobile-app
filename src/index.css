@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* வெண்முரசு — பாரம்பரிய இலக்கிய வடிவமைப்பு (sepia / cream / ink) */
+
+@layer base {
+  :root {
+    --background: 39 38% 94%;            /* warm cream paper */
+    --foreground: 25 35% 14%;            /* deep ink brown */
+
+    --card: 38 45% 97%;
+    --card-foreground: 25 35% 14%;
+
+    --popover: 38 45% 97%;
+    --popover-foreground: 25 35% 14%;
+
+    --primary: 18 55% 28%;               /* rich sienna */
+    --primary-foreground: 39 50% 96%;
+
+    --secondary: 36 30% 86%;
+    --secondary-foreground: 25 35% 18%;
+
+    --muted: 36 25% 88%;
+    --muted-foreground: 25 18% 38%;
+
+    --accent: 38 70% 48%;                /* gold leaf */
+    --accent-foreground: 25 40% 12%;
+
+    --destructive: 0 65% 42%;
+    --destructive-foreground: 39 50% 96%;
+
+    --border: 32 25% 78%;
+    --input: 32 25% 82%;
+    --ring: 18 55% 28%;
+
+    --radius: 0.375rem;
+
+    --gradient-paper: linear-gradient(180deg, hsl(39 45% 96%) 0%, hsl(36 35% 90%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(38 70% 52%) 0%, hsl(28 60% 40%) 100%);
+    --paper-dot: hsl(25 35% 14% / 0.04);
+    --shadow-paper: 0 1px 2px hsl(25 35% 14% / 0.06), 0 8px 24px -12px hsl(25 35% 14% / 0.18);
+    --shadow-deep: 0 20px 40px -20px hsl(25 35% 14% / 0.35);
+
+    --sidebar-background: 36 35% 90%;
+    --sidebar-foreground: 25 35% 18%;
+    --sidebar-primary: 18 55% 28%;
+    --sidebar-primary-foreground: 39 50% 96%;
+    --sidebar-accent: 36 30% 84%;
+    --sidebar-accent-foreground: 25 35% 14%;
+    --sidebar-border: 32 25% 75%;
+    --sidebar-ring: 18 55% 28%;
+  }
+
+  .dark {
+    --background: 25 22% 8%;
+    --foreground: 39 35% 92%;
+    --card: 25 22% 12%;
+    --card-foreground: 39 35% 92%;
+    --popover: 25 22% 12%;
+    --popover-foreground: 39 35% 92%;
+    --primary: 38 75% 62%;
+    --primary-foreground: 25 30% 10%;
+    --secondary: 25 15% 18%;
+    --secondary-foreground: 39 35% 92%;
+    --muted: 25 15% 16%;
+    --muted-foreground: 39 18% 70%;
+    --accent: 38 80% 58%;
+    --accent-foreground: 25 30% 10%;
+    --destructive: 0 60% 50%;
+    --destructive-foreground: 39 35% 92%;
+    --border: 25 15% 22%;
+    --input: 25 15% 22%;
+    --ring: 38 70% 58%;
+
+    --gradient-paper: linear-gradient(180deg, hsl(25 22% 9%) 0%, hsl(25 20% 6%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(38 75% 55%) 0%, hsl(28 65% 35%) 100%);
+    --paper-dot: hsl(38 60% 55% / 0.04);
+    --shadow-paper: 0 1px 2px hsl(0 0% 0% / 0.4), 0 8px 24px -12px hsl(0 0% 0% / 0.6);
+    --shadow-deep: 0 20px 40px -20px hsl(0 0% 0% / 0.7);
+
+    --sidebar-background: 25 20% 10%;
+    --sidebar-foreground: 39 35% 88%;
+    --sidebar-primary: 38 75% 60%;
+    --sidebar-primary-foreground: 25 30% 10%;
+    --sidebar-accent: 25 15% 16%;
+    --sidebar-accent-foreground: 39 35% 92%;
+    --sidebar-border: 25 15% 20%;
+    --sidebar-ring: 38 75% 58%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  html { font-family: 'Noto Serif Tamil', 'Catamaran', Georgia, serif; }
+  body {
+    @apply bg-background text-foreground;
+    background-image:
+      radial-gradient(var(--paper-dot) 1px, transparent 1px),
+      var(--gradient-paper);
+    background-size: 18px 18px, auto;
+    background-attachment: fixed;
+    font-feature-settings: "kern", "liga";
+  }
+
+  h1, h2, h3, h4 { font-family: 'Noto Serif Tamil', Georgia, serif; font-weight: 600; letter-spacing: -0.01em; }
+}
+
+@layer components {
+  .ornament-divider {
+    @apply flex items-center justify-center gap-3 text-accent;
+  }
+  .ornament-divider::before,
+  .ornament-divider::after {
+    content: '';
+    @apply h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent;
+  }
+
+  .paper-card {
+    background: hsl(var(--card));
+    box-shadow: var(--shadow-paper);
+    border: 1px solid hsl(var(--border));
+  }
+}

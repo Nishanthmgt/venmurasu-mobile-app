@@ -1,0 +1,70 @@
+name: Build Android Apps
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Install Dependencies
+        run: npm install
+
+      # 1. Build and Prepare User App
+      - name: Build User Web App
+        run: npm run build:user
+
+      - name: Sync User to Android
+        run: npx cap sync android
+
+      - name: Build User APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleUserDebug
+
+      # 2. Build and Prepare Admin App
+      - name: Build Admin Web App
+        run: npm run build:admin
+
+      - name: Sync Admin to Android
+        run: npx cap sync android
+
+      - name: Build Admin APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleAdminDebug
+
+      # 3. Upload Resulting APKs
+      - name: Upload User APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Venmurasu-Reader-App
+          path: android/app/build/outputs/apk/user/debug/app-user-debug.apk
+
+      - name: Upload Admin APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Venmurasu-Admin-App
+          path: android/app/build/outputs/apk/admin/debug/app-admin-debug.apk

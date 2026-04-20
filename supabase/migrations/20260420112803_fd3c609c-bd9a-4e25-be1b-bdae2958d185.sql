@@ -1,0 +1,1 @@
+ALTER TABLE public.chapters ADD COLUMN published_at date;
