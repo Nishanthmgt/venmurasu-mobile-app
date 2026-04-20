@@ -111,46 +111,55 @@ const PartPage = () => {
         }
       />
 
-      <main className={`container max-w-2xl px-4 mt-6 animate-fade-up ${fontClass}`}>
-        <p className="text-center text-muted-foreground font-serif text-sm mb-4">
+      <main className={`container max-w-2xl px-4 mt-6 animate-fade-up pb-6 ${fontClass}`}>
+        <p className="text-center text-muted-foreground font-serif text-xs mb-6 tracking-widest uppercase">
           {book.title_ta} · {chapter.title_ta}
         </p>
-        <article className="paper-card rounded-lg p-6 md:p-8">
-          <h2 className="font-serif text-2xl text-primary mb-2 text-center">{part.title_ta}</h2>
-          <div className="ornament-divider mb-5"><span className="text-xs">❖</span></div>
 
-          {part.content ? (
-            <div
-              className="font-serif text-foreground/90 leading-loose rich-text-content"
-              dangerouslySetInnerHTML={{ __html: part.content }}
-            />
-          ) : (
-            <p className="text-center text-muted-foreground font-serif italic py-8">
-              உள்ளடக்கம் விரைவில் சேர்க்கப்படும்.
-            </p>
-          )}
+        <article className="paper-card rounded-2xl overflow-hidden shadow-deep">
+          {/* Book-style chapter header */}
+          <div className="bg-gradient-to-b from-secondary/40 to-transparent px-8 pt-10 pb-6 text-center border-b border-border/30">
+            <h2 className="font-serif text-2xl md:text-3xl text-primary leading-tight">{part.title_ta}</h2>
+            <div className="ornament-divider mt-4"><span className="text-sm px-3 text-accent">❖</span></div>
+          </div>
 
+          {/* Content area — book paper feel */}
+          <div className="px-6 md:px-12 py-8">
+            {part.content ? (
+              <div
+                className="font-serif text-foreground/90 leading-[2.2] rich-text-content text-[1.05rem]"
+                dangerouslySetInnerHTML={{ __html: part.content }}
+              />
+            ) : (
+              <p className="text-center text-muted-foreground font-serif italic py-12">
+                உள்ளடக்கம் விரைவில் சேர்க்கப்படும்.
+              </p>
+            )}
+          </div>
+
+          {/* Images inside article */}
           {(part.image_urls?.length ?? 0) > 0 && (
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="px-6 md:px-10 pb-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
               {part.image_urls?.map((url, i) => (
                 <img
                   key={i}
                   src={url}
                   alt={`${part.title_ta} - ${i + 1}`}
                   loading="lazy"
-                  className="rounded-xl shadow-paper w-full object-cover aspect-video"
+                  className="rounded-xl w-full object-cover border border-border/30"
                 />
               ))}
             </div>
           )}
 
+          {/* Videos inside article */}
           {(part.youtube_urls?.length ?? 0) > 0 && (
-            <div className="mt-6 space-y-4">
+            <div className="px-6 md:px-10 pb-8 space-y-4">
               {part.youtube_urls?.map((url, i) => {
                 const id = extractYouTubeId(url);
                 if (!id) return null;
                 return (
-                  <div key={i} className="relative aspect-video rounded-xl overflow-hidden shadow-paper bg-secondary">
+                  <div key={i} className="relative aspect-video rounded-xl overflow-hidden border border-border/30 bg-secondary">
                     <iframe
                       src={`https://www.youtube.com/embed/${id}`}
                       title={`${part.title_ta} - video ${i + 1}`}
@@ -163,25 +172,30 @@ const PartPage = () => {
               })}
             </div>
           )}
+
+          {/* Bottom ornament */}
+          <div className="px-8 py-4 border-t border-border/30 text-center">
+            <span className="text-accent/40 text-lg">— ❦ —</span>
+          </div>
         </article>
 
         <nav className="flex items-center justify-between mt-6 gap-3">
           {prev ? (
             <Link
               to={`/book/${book.slug}/chapter/${chapter.slug}/part/${prev.slug}`}
-              className="paper-card rounded-md px-4 py-2 font-serif text-sm text-primary hover:bg-secondary/60 flex items-center gap-2 transition"
+              className="paper-card rounded-xl px-4 py-3 font-serif text-sm text-primary hover:bg-secondary/60 flex items-center gap-2 transition max-w-[45%]"
             >
-              <ChevronLeft className="h-4 w-4" />
-              <span className="truncate max-w-[10rem]">{prev.title_ta}</span>
+              <ChevronLeft className="h-4 w-4 shrink-0" />
+              <span className="truncate">{prev.title_ta}</span>
             </Link>
           ) : <span />}
           {next ? (
             <Link
               to={`/book/${book.slug}/chapter/${chapter.slug}/part/${next.slug}`}
-              className="paper-card rounded-md px-4 py-2 font-serif text-sm text-primary hover:bg-secondary/60 flex items-center gap-2 ml-auto transition"
+              className="paper-card rounded-xl px-4 py-3 font-serif text-sm text-primary hover:bg-secondary/60 flex items-center gap-2 ml-auto transition max-w-[45%]"
             >
-              <span className="truncate max-w-[10rem]">{next.title_ta}</span>
-              <ChevronRight className="h-4 w-4" />
+              <span className="truncate">{next.title_ta}</span>
+              <ChevronRight className="h-4 w-4 shrink-0" />
             </Link>
           ) : <span />}
         </nav>

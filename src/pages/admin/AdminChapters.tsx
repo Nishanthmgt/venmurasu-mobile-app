@@ -5,15 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ChevronLeft, ChevronRight, Pencil, Plus, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil, Plus, Trash2, Loader2, BookOpen } from "lucide-react";
 import { slugify } from "@/lib/admin";
 import { toast } from "sonner";
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 
 type Chapter = {
@@ -42,14 +38,11 @@ const AdminChapters = () => {
     enabled: !!bookId,
   });
 
-  const { data: chapters = [] } = useQuery({
+  const { data: chapters = [], isLoading } = useQuery({
     queryKey: ["admin-chapters", bookId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("chapters")
-        .select("*")
-        .eq("book_id", bookId)
-        .order("order_num");
+        .from("chapters").select("*").eq("book_id", bookId).order("order_num");
       if (error) throw error;
       return data as Chapter[];
     },
@@ -88,12 +81,9 @@ const AdminChapters = () => {
 
   const openNew = () => {
     setEditing({
-      id: "",
-      book_id: bookId,
-      slug: "",
+      id: "", book_id: bookId, slug: "",
       order_num: (chapters[chapters.length - 1]?.order_num || 0) + 1,
-      title_ta: "",
-      description: "",
+      title_ta: "", description: "",
       published_at: new Date().toISOString().slice(0, 10),
     });
     setOpen(true);
@@ -108,97 +98,98 @@ const AdminChapters = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <Button asChild variant="ghost" size="sm">
-        <Link to="/admin">
-          <ChevronLeft className="h-4 w-4" /> புத்தகங்கள்
-        </Link>
+    <div className="space-y-5">
+      <Button asChild variant="ghost" size="sm" className="text-muted-foreground">
+        <Link to="/admin"><ChevronLeft className="h-4 w-4 mr-1" /> நூல்கள்</Link>
       </Button>
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-serif text-3xl text-primary">{book?.title_ta || "..."}</h1>
-          <p className="text-sm text-muted-foreground mt-1">{chapters.length} chapters</p>
+          <h1 className="font-serif text-2xl font-bold text-primary">{book?.title_ta || "..."}</h1>
+          <p className="text-sm text-muted-foreground mt-1">{chapters.length} அத்தியாயங்கள்</p>
         </div>
-        <Button onClick={openNew}>
-          <Plus className="h-4 w-4" /> புதிய அத்தியாயம்
+        <Button onClick={openNew} size="sm">
+          <Plus className="h-4 w-4 mr-1" /> புதிய அத்தியாயம்
         </Button>
       </div>
 
-      <div className="grid gap-2">
-        {chapters.map((c) => (
-          <div
-            key={c.id}
-            className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card hover:bg-secondary/30"
-          >
-            <div className="w-8 text-center text-sm text-muted-foreground tabular-nums">{c.order_num}</div>
-            <div className="flex-1 min-w-0">
-              <div className="font-serif text-lg truncate">{c.title_ta}</div>
-              <div className="text-xs text-muted-foreground truncate">
-                /{c.slug}
-                {c.published_at && <span className="ml-2">· {c.published_at}</span>}
+      {isLoading ? (
+        <div className="flex justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-accent" />
+        </div>
+      ) : (
+        <div className="grid gap-3">
+          {chapters.map((c) => (
+            <div key={c.id} className="flex items-center gap-3 p-4 rounded-xl border border-border bg-card hover:shadow-md transition-all group">
+              <div className="h-9 w-9 rounded-full bg-secondary flex items-center justify-center text-sm text-muted-foreground font-medium shrink-0">
+                {c.order_num}
               </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-serif text-base font-semibold text-foreground">{c.title_ta}</div>
+                {c.published_at && (
+                  <div className="text-xs text-muted-foreground mt-0.5">{c.published_at}</div>
+                )}
+              </div>
+              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button variant="ghost" size="icon" onClick={() => { setEditing(c); setOpen(true); }}>
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => confirm("Delete chapter?") && del.mutate(c.id)}>
+                  <Trash2 className="h-4 w-4 text-destructive" />
+                </Button>
+              </div>
+              <Button asChild variant="outline" size="sm" className="shrink-0">
+                <Link to={`/admin/chapters/${c.id}/parts`}>
+                  பகுதிகள் <ChevronRight className="h-3.5 w-3.5 ml-1" />
+                </Link>
+              </Button>
             </div>
-            <Button asChild variant="ghost" size="sm">
-              <Link to={`/admin/chapters/${c.id}/parts`}>
-                பகுதிகள் <ChevronRight className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => { setEditing(c); setOpen(true); }}>
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => confirm("Delete chapter?") && del.mutate(c.id)}>
-              <Trash2 className="h-4 w-4 text-destructive" />
-            </Button>
-          </div>
-        ))}
-      </div>
+          ))}
+          {chapters.length === 0 && (
+            <div className="text-center py-20 text-muted-foreground font-serif bg-secondary/10 rounded-2xl border border-dashed border-border">
+              <BookOpen className="h-10 w-10 mx-auto mb-3 opacity-20" />
+              இன்னும் அத்தியாயங்கள் சேர்க்கப்படவில்லை
+            </div>
+          )}
+        </div>
+      )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{editing?.id ? "திருத்து" : "புதிய அத்தியாயம்"}</DialogTitle>
+            <DialogTitle className="font-serif">{editing?.id ? "அத்தியாயம் திருத்து" : "புதிய அத்தியாயம்"}</DialogTitle>
           </DialogHeader>
           {editing && (
-            <div className="space-y-3">
-              <div className="grid grid-cols-3 gap-2">
-                <div className="col-span-2">
-                  <label className="text-xs text-muted-foreground">தலைப்பு</label>
+            <div className="space-y-3 pt-2">
+              <div className="grid grid-cols-3 gap-3">
+                <div className="col-span-2 space-y-1">
+                  <label className="text-xs text-muted-foreground font-medium">தலைப்பு *</label>
                   <Input value={editing.title_ta} onChange={(e) => setEditing({ ...editing, title_ta: e.target.value })} />
                 </div>
-                <div>
-                  <label className="text-xs text-muted-foreground">Order</label>
-                  <Input
-                    type="number"
-                    value={editing.order_num}
-                    onChange={(e) => setEditing({ ...editing, order_num: Number(e.target.value) })}
-                  />
+                <div className="space-y-1">
+                  <label className="text-xs text-muted-foreground font-medium">Order</label>
+                  <Input type="number" value={editing.order_num} onChange={(e) => setEditing({ ...editing, order_num: Number(e.target.value) })} />
                 </div>
               </div>
-              <div>
-                <label className="text-xs text-muted-foreground">Slug</label>
-                <Input value={editing.slug} onChange={(e) => setEditing({ ...editing, slug: e.target.value })} />
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground font-medium">Slug (auto)</label>
+                <Input value={editing.slug} onChange={(e) => setEditing({ ...editing, slug: e.target.value })} placeholder="auto-generated" />
               </div>
-              <div>
-                <label className="text-xs text-muted-foreground">Updated date (chapters-ku date)</label>
-                <Input
-                  type="date"
-                  value={editing.published_at || ""}
-                  onChange={(e) => setEditing({ ...editing, published_at: e.target.value || null })}
-                />
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground font-medium">வெளியிட்ட தேதி</label>
+                <Input type="date" value={editing.published_at || ""} onChange={(e) => setEditing({ ...editing, published_at: e.target.value || null })} />
               </div>
-              <div>
-                <label className="text-xs text-muted-foreground">Description</label>
-                <Textarea
-                  value={editing.description || ""}
-                  onChange={(e) => setEditing({ ...editing, description: e.target.value })}
-                />
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground font-medium">விவரம்</label>
+                <Textarea value={editing.description || ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} rows={2} />
               </div>
             </div>
           )}
-          <DialogFooter>
+          <DialogFooter className="mt-4">
             <Button variant="ghost" onClick={() => setOpen(false)}>ரத்து</Button>
-            <Button onClick={save} disabled={upsert.isPending}>சேமி</Button>
+            <Button onClick={save} disabled={upsert.isPending}>
+              {upsert.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}சேமி
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

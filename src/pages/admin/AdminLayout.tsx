@@ -22,9 +22,6 @@ const AdminLayout = () => {
       <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border/50">
         <div className="container max-w-6xl px-4 h-14 flex items-center justify-between">
           <Link to="/admin" className="flex items-center gap-2">
-            <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center text-primary-foreground shadow-sm">
-              <Shield className="h-5 w-5" />
-            </div>
             <span className="font-serif text-lg font-bold text-primary tracking-tight">வெண்முரசு நிர்வாகம்</span>
           </Link>
           <Button 
