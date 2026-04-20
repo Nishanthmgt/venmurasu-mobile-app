@@ -39,15 +39,22 @@ const MapPage = () => {
               {locations?.map((loc) => (
                 <div 
                   key={loc.id} 
-                  className="paper-card rounded-xl p-5 flex items-start gap-4 hover:shadow-deep transition-all border border-transparent hover:border-accent/20 cursor-default"
+                  className="paper-card rounded-xl p-0 overflow-hidden flex flex-col sm:flex-row items-stretch hover:shadow-deep transition-all border border-transparent hover:border-accent/20 cursor-default group"
                 >
-                  <div className="mt-1 h-8 w-8 rounded-full bg-secondary flex items-center justify-center text-accent shrink-0">
-                    <MapPin className="h-4 w-4" />
+                  <div className="w-full sm:w-32 aspect-video sm:aspect-square bg-secondary shrink-0 overflow-hidden">
+                    {loc.image_url ? (
+                      <img src={loc.image_url} alt={loc.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    ) : (
+                      <div className="h-full w-full flex items-center justify-center text-accent/30">
+                        <MapPin className="h-8 w-8" />
+                      </div>
+                    )}
                   </div>
-                  <div>
+                  <div className="p-5 flex-1 flex flex-col justify-center min-w-0">
                     <h4 className="font-serif text-lg text-primary">{loc.name}</h4>
-                    <p className="text-sm text-muted-foreground font-serif mt-1">{loc.description}</p>
-                    <div className="mt-2 text-[10px] font-mono text-muted-foreground/60 uppercase tracking-widest">
+                    <p className="text-sm text-muted-foreground font-serif mt-1 line-clamp-3">{loc.description}</p>
+                    <div className="mt-3 text-[10px] font-mono text-muted-foreground/60 uppercase tracking-widest flex items-center gap-1.5">
+                      <div className="h-1 w-1 rounded-full bg-accent" />
                       {loc.latitude.toFixed(4)}° N, {loc.longitude.toFixed(4)}° E
                     </div>
                   </div>

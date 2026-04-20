@@ -20,6 +20,7 @@ type MapLocation = {
   description: string | null;
   latitude: number;
   longitude: number;
+  image_url: string | null;
 };
 
 const AdminMap = () => {
@@ -108,8 +109,14 @@ const AdminMap = () => {
               key={l.id}
               className="p-5 rounded-2xl border border-border bg-card hover:shadow-md transition-all flex items-start gap-4 group"
             >
-              <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center text-accent shrink-0">
-                <MapPin className="h-5 w-5" />
+              <div className="h-16 w-16 rounded-xl bg-secondary overflow-hidden shrink-0 border border-border">
+                {l.image_url ? (
+                  <img src={l.image_url} alt={l.name} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center text-accent/40">
+                    <MapPin className="h-6 w-6" />
+                  </div>
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="font-serif text-lg text-primary">{l.name}</div>
@@ -177,7 +184,15 @@ const AdminMap = () => {
                   value={editing.description || ""}
                   onChange={(e) => setEditing({ ...editing, description: e.target.value })}
                   placeholder="இந்த இடத்தின் வரலாற்று முக்கியத்துவம்..."
-                  rows={4}
+                  rows={3}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">படம் (Image URL)</label>
+                <Input
+                  value={editing.image_url || ""}
+                  onChange={(e) => setEditing({ ...editing, image_url: e.target.value })}
+                  placeholder="https://images.unsplash.com/..."
                 />
               </div>
             </div>

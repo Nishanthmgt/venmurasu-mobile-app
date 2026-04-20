@@ -5,13 +5,13 @@ import { Loader2 } from "lucide-react";
 
 const Node = ({ label, children }: { label: string; children?: React.ReactNode }) => (
   <div className="flex flex-col items-center">
-    <div className="paper-card rounded-md px-4 py-2 font-serif text-foreground text-sm shadow-paper border border-accent/20">
+    <div className="paper-card rounded-xl px-5 py-3 font-serif text-primary text-base shadow-deep border border-accent/10 bg-gradient-to-b from-card to-secondary/20 min-w-[120px] text-center hover:scale-105 transition-transform">
       {label}
     </div>
     {children && (
       <>
-        <div className="w-px h-6 bg-border" />
-        <div className="flex gap-6 relative before:content-[''] before:absolute before:top-0 before:left-12 before:right-12 before:h-px before:bg-border">
+        <div className="w-px h-8 bg-gradient-to-b from-accent/30 to-border" />
+        <div className="flex gap-10 relative px-10 before:content-[''] before:absolute before:top-0 before:left-14 before:right-14 before:h-px before:bg-gradient-to-r before:from-transparent before:via-accent/20 before:to-transparent">
           {children}
         </div>
       </>

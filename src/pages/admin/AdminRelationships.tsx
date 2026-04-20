@@ -36,6 +36,58 @@ type Character = {
   order_num: number;
 };
 
+const CharacterTree = ({ 
+  characters, 
+  parentId, 
+  onEdit, 
+  onDelete, 
+  level = 0 
+}: { 
+  characters: Character[]; 
+  parentId: string | null; 
+  onEdit: (c: Character) => void;
+  onDelete: (id: string) => void;
+  level?: number;
+}) => {
+  const children = characters
+    .filter((c) => c.parent_id === parentId)
+    .sort((a, b) => a.order_num - b.order_num);
+
+  if (children.length === 0) return null;
+
+  return (
+    <div className={`space-y-3 ${level > 0 ? "ml-8 pl-4 border-l-2 border-accent/10" : ""}`}>
+      {children.map((char) => (
+        <div key={char.id} className="space-y-3">
+          <div className="flex items-center justify-between p-4 bg-card border border-border rounded-xl group hover:border-accent/30 transition-colors shadow-sm">
+            <div className="flex items-center gap-4">
+              <div className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center text-accent/60 font-serif text-sm">
+                {char.order_num + 1}
+              </div>
+              <div className="font-serif text-lg">{char.name}</div>
+            </div>
+            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button variant="ghost" size="icon" onClick={() => onEdit(char)}>
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => onDelete(char.id)}>
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            </div>
+          </div>
+          <CharacterTree 
+            characters={characters} 
+            parentId={char.id} 
+            onEdit={onEdit} 
+            onDelete={onDelete} 
+            level={level + 1} 
+          />
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const AdminRelationships = () => {
   const qc = useQueryClient();
   const [selectedComm, setSelectedComm] = useState<Community | null>(null);
@@ -215,32 +267,18 @@ const AdminRelationships = () => {
             {loadChar ? (
               <div className="flex justify-center p-20"><Loader2 className="animate-spin text-accent" /></div>
             ) : (
-              <div className="grid gap-3">
-                {characters.map((char) => (
-                  <div key={char.id} className="p-4 bg-card border border-border rounded-xl flex items-center justify-between group">
-                    <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center text-accent font-serif">
-                        {char.order_num + 1}
-                      </div>
-                      <div>
-                        <div className="font-serif text-lg">{char.name}</div>
-                        {char.parent_id && (
-                          <div className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                            பெற்றோர்: {characters.find(p => p.id === char.parent_id)?.name || 'Unknown'}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                       <Button variant="ghost" size="icon" onClick={() => { setEditingChar(char); setOpenChar(true); }}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => { if(confirm(`Delete ${char.name}?`)) delChar.mutate(char.id); }}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
+              <div className="space-y-4">
+                <CharacterTree 
+                  characters={characters} 
+                  parentId={null} 
+                  onEdit={(c) => { setEditingChar(c); setOpenChar(true); }}
+                  onDelete={(id) => { if(confirm(`Delete character?`)) delChar.mutate(id); }}
+                />
+                {characters.length === 0 && (
+                  <div className="text-center py-20 text-muted-foreground font-serif bg-secondary/5 rounded-2xl border border-dashed border-border/50">
+                    இன்னும் கதாபாத்திரங்கள் சேர்க்கப்படவில்லை
                   </div>
-                ))}
+                )}
               </div>
             )}
           </div>

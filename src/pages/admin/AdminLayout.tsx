@@ -17,71 +17,86 @@ const AdminLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-30 backdrop-blur-md bg-background/80 border-b border-border">
-        <div className="container max-w-6xl flex items-center justify-between h-16 px-4">
-          <Link to="/admin" className="flex items-center gap-2 text-primary">
-            <Shield className="h-6 w-6" />
-            <span className="font-serif text-xl hidden sm:inline">நிர்வாகம்</span>
+    <div className="min-h-screen bg-[#FDFBF7]">
+      {/* Top Header */}
+      <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border/50">
+        <div className="container max-w-6xl px-4 h-14 flex items-center justify-between">
+          <Link to="/admin" className="flex items-center gap-2">
+            <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center text-primary-foreground shadow-sm">
+              <Shield className="h-5 w-5" />
+            </div>
+            <span className="font-serif text-lg font-bold text-primary tracking-tight">வெண்முரசு நிர்வாகம்</span>
           </Link>
-          <nav className="flex items-center gap-1 sm:gap-2">
-            <NavLink
-              to="/admin"
-              end
-              className={({ isActive }) =>
-                `p-2 px-3 rounded-md transition-all flex items-center gap-2 ${isActive ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`
-              }
-            >
-              <BookOpen className="h-5 w-5" />
-              <span className="hidden lg:inline font-medium">புத்தகங்கள்</span>
-            </NavLink>
-            <NavLink
-              to="/admin/glossary"
-              className={({ isActive }) =>
-                `p-2 px-3 rounded-md transition-all flex items-center gap-2 ${isActive ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`
-              }
-            >
-              <Languages className="h-5 w-5" />
-              <span className="hidden lg:inline font-medium">கலைச்சொற்கள்</span>
-            </NavLink>
-            <NavLink
-              to="/admin/relationships"
-              className={({ isActive }) =>
-                `p-2 px-3 rounded-md transition-all flex items-center gap-2 ${isActive ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`
-              }
-            >
-              <Users className="h-5 w-5" />
-              <span className="hidden lg:inline font-medium">உறவுகள்</span>
-            </NavLink>
-            <NavLink
-              to="/admin/map"
-              className={({ isActive }) =>
-                `p-2 px-3 rounded-md transition-all flex items-center gap-2 ${isActive ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`
-              }
-            >
-              <MapIcon className="h-5 w-5" />
-              <span className="hidden lg:inline font-medium">வரைபடம்</span>
-            </NavLink>
-            
-            <div className="w-px h-6 bg-border mx-1 hidden sm:block" />
-            
-            <Link
-              to="/"
-              className="p-2 rounded-md text-muted-foreground hover:bg-secondary transition-colors"
-              title="Go to Website"
-            >
-              <Home className="h-5 w-5" />
-            </Link>
-            
-            <Button variant="ghost" size="icon" onClick={logout} className="text-destructive hover:bg-destructive/10" title="Logout">
-              <LogOut className="h-5 w-5" />
-            </Button>
-          </nav>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={logout} 
+            className="text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+            title="வெளியேறு"
+          >
+            <LogOut className="h-5 w-5" />
+          </Button>
         </div>
       </header>
-      <main className="container max-w-6xl px-4 py-8">
+
+      {/* Main Content */}
+      <main className="container max-w-6xl px-4 py-6 pb-24">
         <Outlet />
       </main>
+
+      {/* Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-lg border-t border-border/50 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] pb-safe">
+        <div className="container max-w-md mx-auto h-16 px-4 flex items-center justify-between">
+          <NavLink
+            to="/admin"
+            end
+            className={({ isActive }) =>
+              `flex flex-col items-center gap-1 transition-all ${isActive ? "text-primary bg-primary/5 rounded-xl px-4 py-1" : "text-muted-foreground hover:text-foreground"}`
+            }
+          >
+            <BookOpen className="h-5 w-5" />
+            <span className="text-[10px] font-medium font-serif">நூல்கள்</span>
+          </NavLink>
+          
+          <NavLink
+            to="/admin/glossary"
+            className={({ isActive }) =>
+              `flex flex-col items-center gap-1 transition-all ${isActive ? "text-primary bg-primary/5 rounded-xl px-4 py-1" : "text-muted-foreground hover:text-foreground"}`
+            }
+          >
+            <Languages className="h-5 w-5" />
+            <span className="text-[10px] font-medium font-serif">கலைச்சொற்கள்</span>
+          </NavLink>
+          
+          <NavLink
+            to="/admin/relationships"
+            className={({ isActive }) =>
+              `flex flex-col items-center gap-1 transition-all ${isActive ? "text-primary bg-primary/5 rounded-xl px-4 py-1" : "text-muted-foreground hover:text-foreground"}`
+            }
+          >
+            <Users className="h-5 w-5" />
+            <span className="text-[10px] font-medium font-serif">உறவுகள்</span>
+          </NavLink>
+          
+          <NavLink
+            to="/admin/map"
+            className={({ isActive }) =>
+              `flex flex-col items-center gap-1 transition-all ${isActive ? "text-primary bg-primary/5 rounded-xl px-4 py-1" : "text-muted-foreground hover:text-foreground"}`
+            }
+          >
+            <MapIcon className="h-5 w-5" />
+            <span className="text-[10px] font-medium font-serif">வரைபடம்</span>
+          </NavLink>
+
+          <Link
+            to="/"
+            className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground"
+          >
+            <Home className="h-5 w-5" />
+            <span className="text-[10px] font-medium font-serif">முகப்பு</span>
+          </Link>
+        </div>
+      </nav>
     </div>
   );
 };
