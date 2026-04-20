@@ -87,15 +87,13 @@ const AdminMap = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="admin-page">
+      <div className="admin-page-header">
         <div>
-          <h1 className="font-serif text-3xl text-primary">வரைபட இடங்கள்</h1>
-          <p className="text-sm text-muted-foreground mt-1">{locations.length} இடங்கள் அடையாளப்படுத்தப்பட்டுள்ளன</p>
+          <h1>வரைபட இடங்கள்</h1>
+          <p>{locations.length} இடங்கள்</p>
         </div>
-        <Button onClick={openNew}>
-          <Plus className="h-4 w-4" /> புதிய இடம்
-        </Button>
+        <Button onClick={openNew} size="sm"><Plus className="h-4 w-4 mr-1" />புதிய இடம்</Button>
       </div>
 
       {isLoading ? (
@@ -103,43 +101,25 @@ const AdminMap = () => {
           <Loader2 className="h-8 w-8 animate-spin text-accent" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid gap-2">
           {locations.map((l) => (
-            <div
-              key={l.id}
-              className="p-5 rounded-2xl border border-border bg-card hover:shadow-md transition-all flex items-start gap-4 group"
-            >
-              <div className="h-16 w-16 rounded-xl bg-secondary overflow-hidden shrink-0 border border-border">
-                {l.image_url ? (
-                  <img src={l.image_url} alt={l.name} className="h-full w-full object-cover" />
-                ) : (
-                  <div className="h-full w-full flex items-center justify-center text-accent/40">
-                    <MapPin className="h-6 w-6" />
-                  </div>
-                )}
+            <div key={l.id} className="admin-card">
+              <div className="h-12 w-12 rounded-lg bg-secondary overflow-hidden shrink-0 border border-border">
+                {l.image_url
+                  ? <img src={l.image_url} alt={l.name} className="h-full w-full object-cover" />
+                  : <div className="h-full w-full flex items-center justify-center text-accent/40"><MapPin className="h-5 w-5" /></div>}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="font-serif text-lg text-primary">{l.name}</div>
-                <div className="text-xs font-mono text-muted-foreground mt-1 uppercase tracking-tighter">
-                  {l.latitude.toFixed(4)}°N, {l.longitude.toFixed(4)}°E
-                </div>
-                <div className="text-sm text-muted-foreground mt-2 line-clamp-2">{l.description}</div>
+                <div className="admin-card-title">{l.name}</div>
+                <div className="admin-card-sub">{l.latitude.toFixed(2)}°N, {l.longitude.toFixed(2)}°E</div>
               </div>
-              <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button variant="ghost" size="icon" onClick={() => openEdit(l)}>
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={() => { if(confirm(`Delete ${l.name}?`)) del.mutate(l.id); }}>
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
+              <div className="admin-card-actions">
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(l)}><Pencil className="h-3.5 w-3.5" /></Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { if(confirm(`Delete ${l.name}?`)) del.mutate(l.id); }}><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
               </div>
             </div>
           ))}
-          {locations.length === 0 && (
-            <div className="col-span-full text-center py-20 text-muted-foreground font-serif bg-secondary/10 rounded-2xl border border-dashed border-border">
-              இடங்கள் எதுவும் இல்லை
-            </div>
-          )}
+          {locations.length === 0 && <div className="admin-empty">இடங்கள் இல்லை</div>}
         </div>
       )}
 

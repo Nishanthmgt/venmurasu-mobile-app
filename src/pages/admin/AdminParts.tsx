@@ -114,47 +114,38 @@ const AdminParts = () => {
   const backLink = chapter?.books?.id ? `/admin/books/${chapter.books.id}/chapters` : "/admin";
 
   return (
-    <div className="space-y-6">
-      <Button asChild variant="ghost" size="sm">
-        <Link to={backLink}>
-          <ChevronLeft className="h-4 w-4" /> அத்தியாயங்கள்
-        </Link>
+    <div className="admin-page">
+      <Button asChild variant="ghost" size="sm" className="text-muted-foreground -ml-2 h-8 text-xs">
+        <Link to={backLink}><ChevronLeft className="h-3.5 w-3.5 mr-1" />அத்தியாயங்கள்</Link>
       </Button>
 
-      <div className="flex items-center justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-xs text-muted-foreground">{chapter?.books?.title_ta}</p>
-          <h1 className="font-serif text-3xl text-primary truncate">{chapter?.title_ta || "..."}</h1>
-          <p className="text-sm text-muted-foreground mt-1">{parts.length} parts</p>
+      <div className="admin-page-header">
+        <div>
+          <h1>{chapter?.title_ta || "..."}</h1>
+          <p>{chapter?.books?.title_ta} · {parts.length} பகுதிகள்</p>
         </div>
-        <Button onClick={openNew}>
-          <Plus className="h-4 w-4" /> புதிய பகுதி
-        </Button>
+        <Button onClick={openNew} size="sm"><Plus className="h-4 w-4 mr-1" />புதிய பகுதி</Button>
       </div>
 
       <div className="grid gap-2">
         {parts.map((p) => (
-          <div
-            key={p.id}
-            className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card hover:bg-secondary/30"
-          >
-            <div className="w-8 text-center text-sm text-muted-foreground tabular-nums">{p.order_num}</div>
+          <div key={p.id} className="admin-card">
+            <div className="admin-card-num">{p.order_num}</div>
             <div className="flex-1 min-w-0">
-              <div className="font-serif text-lg truncate">{p.title_ta}</div>
-              <div className="text-xs text-muted-foreground">
-                {p.image_urls.length > 0 && `${p.image_urls.length} 🖼 `}
-                {p.youtube_urls.length > 0 && `${p.youtube_urls.length} ▶ `}
-                {(p.content?.length || 0) > 0 && `${Math.round((p.content?.length || 0) / 100) / 10}k chars`}
+              <div className="admin-card-title">{p.title_ta}</div>
+              <div className="admin-card-sub">
+                {(p.image_urls?.length ?? 0) > 0 && `${p.image_urls.length} 🖼 `}
+                {(p.youtube_urls?.length ?? 0) > 0 && `${p.youtube_urls.length} ▶ `}
+                {(p.content?.length ?? 0) > 0 && `${Math.round((p.content?.length || 0) / 50) / 10}k chars`}
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={() => { setEditing(p); setOpen(true); }}>
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => confirm("Delete part?") && del.mutate(p.id)}>
-              <Trash2 className="h-4 w-4 text-destructive" />
-            </Button>
+            <div className="admin-card-actions">
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditing(p); setOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => confirm("Delete part?") && del.mutate(p.id)}><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
+            </div>
           </div>
         ))}
+        {parts.length === 0 && <div className="admin-empty">பகுதிகள் இல்லை</div>}
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>

@@ -140,4 +140,43 @@
   .rich-text-content blockquote {
     @apply border-l-4 border-accent/30 pl-4 italic text-muted-foreground my-6;
   }
+  /* ─── Admin Page System ─── */
+  .admin-page { @apply space-y-4; }
+
+  .admin-page-header {
+    @apply flex items-center justify-between gap-3 pb-4 border-b border-border/50;
+  }
+  .admin-page-header h1 {
+    @apply font-serif text-xl font-bold text-primary leading-tight;
+  }
+  .admin-page-header p {
+    @apply text-xs text-muted-foreground mt-0.5;
+  }
+
+  .admin-card {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl border border-border bg-card
+           hover:shadow-md transition-all duration-200 group;
+  }
+  .admin-card-num {
+    @apply h-8 w-8 rounded-full bg-secondary flex items-center justify-center
+           text-xs font-semibold text-muted-foreground shrink-0;
+  }
+  .admin-card-title {
+    @apply font-serif text-sm font-semibold text-foreground leading-snug;
+  }
+  .admin-card-sub {
+    @apply text-xs text-muted-foreground mt-0.5;
+  }
+  .admin-card-actions {
+    @apply flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity;
+  }
+
+  .admin-empty {
+    @apply text-center py-16 text-muted-foreground font-serif text-sm
+           bg-secondary/10 rounded-2xl border border-dashed border-border;
+  }
+
+  .admin-label {
+    @apply block text-xs font-semibold text-muted-foreground mb-1 tracking-wide;
+  }
 }
