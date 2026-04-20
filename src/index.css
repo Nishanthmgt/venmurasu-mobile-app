@@ -119,6 +119,25 @@
   .paper-card {
     background: hsl(var(--card));
     box-shadow: var(--shadow-paper);
-    border: 1px solid hsl(var(--border));
+    border: 1px solid hsl(var(--border) / 0.5);
+  }
+
+  .rich-text-content p {
+    @apply mb-4 leading-relaxed tracking-wide;
+  }
+  .rich-text-content h2 {
+    @apply text-xl text-primary mt-6 mb-3;
+  }
+  .rich-text-content h3 {
+    @apply text-lg text-primary mt-4 mb-2;
+  }
+  .rich-text-content ul {
+    @apply list-disc ml-5 mb-4 space-y-1;
+  }
+  .rich-text-content ol {
+    @apply list-decimal ml-5 mb-4 space-y-1;
+  }
+  .rich-text-content blockquote {
+    @apply border-l-4 border-accent/30 pl-4 italic text-muted-foreground my-6;
   }
 }

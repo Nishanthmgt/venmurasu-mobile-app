@@ -120,36 +120,37 @@ const PartPage = () => {
           <div className="ornament-divider mb-5"><span className="text-xs">❖</span></div>
 
           {part.content ? (
-            <div className="font-serif text-foreground/90 leading-loose whitespace-pre-wrap">
-              {part.content}
-            </div>
+            <div
+              className="font-serif text-foreground/90 leading-loose rich-text-content"
+              dangerouslySetInnerHTML={{ __html: part.content }}
+            />
           ) : (
             <p className="text-center text-muted-foreground font-serif italic py-8">
               உள்ளடக்கம் விரைவில் சேர்க்கப்படும்.
             </p>
           )}
 
-          {part.image_urls.length > 0 && (
+          {(part.image_urls?.length ?? 0) > 0 && (
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {part.image_urls.map((url, i) => (
+              {part.image_urls?.map((url, i) => (
                 <img
                   key={i}
                   src={url}
                   alt={`${part.title_ta} - ${i + 1}`}
                   loading="lazy"
-                  className="rounded-md shadow-paper w-full object-cover"
+                  className="rounded-xl shadow-paper w-full object-cover aspect-video"
                 />
               ))}
             </div>
           )}
 
-          {part.youtube_urls.length > 0 && (
+          {(part.youtube_urls?.length ?? 0) > 0 && (
             <div className="mt-6 space-y-4">
-              {part.youtube_urls.map((url, i) => {
+              {part.youtube_urls?.map((url, i) => {
                 const id = extractYouTubeId(url);
                 if (!id) return null;
                 return (
-                  <div key={i} className="relative aspect-video rounded-md overflow-hidden shadow-paper bg-secondary">
+                  <div key={i} className="relative aspect-video rounded-xl overflow-hidden shadow-paper bg-secondary">
                     <iframe
                       src={`https://www.youtube.com/embed/${id}`}
                       title={`${part.title_ta} - video ${i + 1}`}
