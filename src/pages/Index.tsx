@@ -40,7 +40,9 @@ const Index = () => {
       {/* Top bar with logo + theme toggle */}
       <div className="container max-w-3xl px-4 pt-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2" aria-label="வெண்முரசு">
-          <img src={logo} alt="வெண்முரசு சின்னம்" width={40} height={40} className="h-10 w-10 object-contain" />
+          <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
+            <Book className="h-6 w-6" />
+          </div>
           <span className="font-serif text-lg text-primary leading-none">வெண்முரசு</span>
         </Link>
         <button
