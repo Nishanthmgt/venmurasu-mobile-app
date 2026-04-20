@@ -155,7 +155,7 @@
 
   .admin-card {
     @apply flex items-center gap-3 px-4 py-3 rounded-xl border border-border bg-card
-           hover:shadow-md transition-all duration-200 group;
+           hover:shadow-md transition-all duration-200;
   }
   .admin-card-num {
     @apply h-8 w-8 rounded-full bg-secondary flex items-center justify-center
