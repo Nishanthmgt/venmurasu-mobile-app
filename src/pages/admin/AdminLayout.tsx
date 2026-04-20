@@ -1,6 +1,6 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { BookOpen, Home, LogOut, Shield } from "lucide-react";
+import { BookOpen, Home, LogOut, Shield, Languages, Users, Map as MapIcon } from "lucide-react";
 import { isAdmin, logoutAdmin } from "@/lib/admin";
 import { Button } from "@/components/ui/button";
 
@@ -19,56 +19,62 @@ const AdminLayout = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-30 backdrop-blur-md bg-background/80 border-b border-border">
-        <div className="container max-w-6xl flex items-center justify-between h-14 px-4">
+        <div className="container max-w-6xl flex items-center justify-between h-16 px-4">
           <Link to="/admin" className="flex items-center gap-2 text-primary">
-            <Shield className="h-5 w-5" />
-            <span className="font-serif text-lg">வெண்முரசு Admin</span>
+            <Shield className="h-6 w-6" />
+            <span className="font-serif text-xl hidden sm:inline">நிர்வாகம்</span>
           </Link>
-          <nav className="flex items-center gap-1 text-sm">
+          <nav className="flex items-center gap-1 sm:gap-2">
             <NavLink
               to="/admin"
               end
               className={({ isActive }) =>
-                `px-3 py-1.5 rounded-md transition-colors ${isActive ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`
+                `p-2 px-3 rounded-md transition-all flex items-center gap-2 ${isActive ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`
               }
             >
-              <BookOpen className="h-4 w-4 inline md:hidden" />
-              <span className="hidden md:inline">புத்தகங்கள்</span>
+              <BookOpen className="h-5 w-5" />
+              <span className="hidden lg:inline font-medium">புத்தகங்கள்</span>
             </NavLink>
             <NavLink
               to="/admin/glossary"
               className={({ isActive }) =>
-                `px-3 py-1.5 rounded-md transition-colors ${isActive ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`
+                `p-2 px-3 rounded-md transition-all flex items-center gap-2 ${isActive ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`
               }
             >
-              <span className="hidden md:inline">கலைச்சொற்கள்</span>
+              <Languages className="h-5 w-5" />
+              <span className="hidden lg:inline font-medium">கலைச்சொற்கள்</span>
             </NavLink>
             <NavLink
               to="/admin/relationships"
               className={({ isActive }) =>
-                `px-3 py-1.5 rounded-md transition-colors ${isActive ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`
+                `p-2 px-3 rounded-md transition-all flex items-center gap-2 ${isActive ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`
               }
             >
-              <span className="hidden md:inline">உறவுகள்</span>
+              <Users className="h-5 w-5" />
+              <span className="hidden lg:inline font-medium">உறவுகள்</span>
             </NavLink>
             <NavLink
               to="/admin/map"
               className={({ isActive }) =>
-                `px-3 py-1.5 rounded-md transition-colors ${isActive ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`
+                `p-2 px-3 rounded-md transition-all flex items-center gap-2 ${isActive ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`
               }
             >
-              <span className="hidden md:inline">வரைபடம்</span>
+              <MapIcon className="h-5 w-5" />
+              <span className="hidden lg:inline font-medium">வரைபடம்</span>
             </NavLink>
+            
+            <div className="w-px h-6 bg-border mx-1 hidden sm:block" />
+            
             <Link
               to="/"
-              className="px-3 py-1.5 rounded-md text-muted-foreground hover:text-foreground transition-colors"
+              className="p-2 rounded-md text-muted-foreground hover:bg-secondary transition-colors"
+              title="Go to Website"
             >
-              <Home className="h-4 w-4 inline md:hidden" />
-              <span className="hidden md:inline">முகப்பு</span>
+              <Home className="h-5 w-5" />
             </Link>
-            <Button variant="ghost" size="sm" onClick={logout}>
-              <LogOut className="h-4 w-4" />
-              <span className="hidden md:inline ml-1">வெளியேறு</span>
+            
+            <Button variant="ghost" size="icon" onClick={logout} className="text-destructive hover:bg-destructive/10" title="Logout">
+              <LogOut className="h-5 w-5" />
             </Button>
           </nav>
         </div>
