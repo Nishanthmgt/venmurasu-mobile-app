@@ -16,7 +16,9 @@ const PartPage = () => {
   const [open, setOpen] = useState(false);
   const { fontClass } = useSettings();
 
-  const part = parts?.find((p) => p.slug === partSlug);
+  const part = partSlug === "start" 
+    ? parts?.[0] 
+    : parts?.find((p) => p.slug === partSlug) || parts?.[0];
 
   useEffect(() => {
     if (book && chapter && part) {

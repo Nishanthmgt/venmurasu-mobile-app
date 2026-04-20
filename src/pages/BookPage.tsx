@@ -50,7 +50,7 @@ const BookPage = () => {
             {chapters.map((ch, i) => (
               <li key={ch.id}>
                 <Link
-                  to={`/book/${book.slug}/chapter/${ch.slug}/part/part-1`}
+                  to={`/book/${book.slug}/chapter/${ch.slug}/part/start`}
                   className="flex items-center gap-4 px-5 py-4 hover:bg-secondary/50 transition-colors group"
                 >
                   <span className="text-accent font-serif tabular-nums w-8 text-right">{i + 1}.</span>
