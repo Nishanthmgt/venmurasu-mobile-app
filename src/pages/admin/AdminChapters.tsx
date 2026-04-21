@@ -8,9 +8,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { ChevronLeft, ChevronRight, Pencil, Plus, Trash2, Loader2 } from "lucide-react";
 import { slugify } from "@/lib/admin";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 
-type Chapter = { id: string; book_id: string; slug: string; order_num: number; title_ta: string; description: string | null; published_at: string | null; };
+type Chapter = {
+  id: string;
+  book_id: string;
+  slug: string;
+  order_num: number;
+  title_ta: string;
+  description: string | null;
+  published_at: string | null;
+};
 
 const AdminChapters = () => {
   const { bookId = "" } = useParams();
@@ -18,24 +26,69 @@ const AdminChapters = () => {
   const [editing, setEditing] = useState<Chapter | null>(null);
   const [open, setOpen] = useState(false);
 
-  const { data: book } = useQuery({ queryKey: ["admin-book", bookId], queryFn: async () => { const { data, error } = await supabase.from("books").select("*").eq("id", bookId).maybeSingle(); if (error) throw error; return data; }, enabled: !!bookId });
-  const { data: chapters = [], isLoading } = useQuery({ queryKey: ["admin-chapters", bookId], queryFn: async () => { const { data, error } = await supabase.from("chapters").select("*").eq("book_id", bookId).order("order_num"); if (error) throw error; return data as Chapter[]; }, enabled: !!bookId });
+  const { data: book } = useQuery({
+    queryKey: ["admin-book", bookId],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("books").select("*").eq("id", bookId).maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!bookId,
+  });
+
+  const { data: chapters = [], isLoading } = useQuery({
+    queryKey: ["admin-chapters", bookId],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("chapters").select("*").eq("book_id", bookId).order("order_num");
+      if (error) throw error;
+      return data as Chapter[];
+    },
+    enabled: !!bookId,
+  });
 
   const upsert = useMutation({
     mutationFn: async (c: Partial<Chapter>) => {
-      if (c.id) { const { error } = await supabase.from("chapters").update(c).eq("id", c.id); if (error) throw error; }
-      else { const { error } = await supabase.from("chapters").insert(c as any); if (error) throw error; }
+      if (c.id) {
+        const { error } = await supabase.from("chapters").update(c).eq("id", c.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("chapters").insert(c as any);
+        if (error) throw error;
+      }
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin-chapters", bookId] }); qc.invalidateQueries({ queryKey: ["chapters", bookId] }); toast.success("சேமிக்கப்பட்டது"); setOpen(false); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-chapters", bookId] });
+      qc.invalidateQueries({ queryKey: ["chapters", bookId] });
+      toast.success("சேமிக்கப்பட்டது");
+      setOpen(false);
+    },
     onError: (e: any) => toast.error(e.message),
   });
 
   const del = useMutation({
-    mutationFn: async (id: string) => { const { error } = await supabase.from("chapters").delete().eq("id", id); if (error) throw error; },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin-chapters", bookId] }); toast.success("நீக்கப்பட்டது"); },
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("chapters").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-chapters", bookId] });
+      toast.success("நீக்கப்பட்டது");
+    },
   });
 
-  const openNew = () => { setEditing({ id: "", book_id: bookId, slug: "", order_num: (chapters[chapters.length - 1]?.order_num || 0) + 1, title_ta: "", description: "", published_at: new Date().toISOString().slice(0, 10) }); setOpen(true); };
+  const openNew = () => {
+    setEditing({
+      id: "",
+      book_id: bookId,
+      slug: "",
+      order_num: (chapters[chapters.length - 1]?.order_num || 0) + 1,
+      title_ta: "",
+      description: "",
+      published_at: new Date().toISOString().slice(0, 10),
+    });
+    setOpen(true);
+  };
+
   const save = () => {
     if (!editing?.title_ta.trim()) return toast.error("தலைப்பு வேண்டும்");
     const payload: any = { ...editing, slug: editing.slug || slugify(editing.title_ta) };
@@ -57,7 +110,9 @@ const AdminChapters = () => {
         <Button onClick={openNew} size="sm"><Plus className="h-4 w-4 mr-1" />புதியது</Button>
       </div>
 
-      {isLoading ? <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-accent" /></div> : (
+      {isLoading ? (
+        <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-accent" /></div>
+      ) : (
         <div className="grid gap-2">
           {chapters.map((c) => (
             <div key={c.id} className="admin-card">
@@ -66,9 +121,13 @@ const AdminChapters = () => {
                 <div className="admin-card-title">{c.title_ta}</div>
                 {c.published_at && <div className="admin-card-sub">{c.published_at}</div>}
               </div>
-              <div className="admin-card-actions">
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditing(c); setOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => confirm("Delete?") && del.mutate(c.id)}><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
+              <div className="flex items-center gap-1">
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditing(c); setOpen(true); }}>
+                  <Pencil className="h-3.5 w-3.5" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => confirm("Delete?") && del.mutate(c.id)}>
+                  <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                </Button>
               </div>
               <Button asChild variant="ghost" size="sm" className="shrink-0 text-xs h-8">
                 <Link to={`/admin/chapters/${c.id}/parts`}>பகுதிகள் <ChevronRight className="h-3.5 w-3.5 ml-1" /></Link>
@@ -79,26 +138,75 @@ const AdminChapters = () => {
         </div>
       )}
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle className="font-serif text-base">{editing?.id ? "திருத்து" : "புதிய அத்தியாயம்"}</DialogTitle></DialogHeader>
+      {/* ── Bottom Sheet (keyboard-safe) ── */}
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetContent side="bottom" className="rounded-t-2xl px-4 pb-safe max-h-[90dvh] overflow-y-auto">
+          <SheetHeader className="pb-3 border-b border-border/40">
+            <SheetTitle className="font-serif text-base text-primary">
+              {editing?.id ? "திருத்து" : "புதிய அத்தியாயம்"}
+            </SheetTitle>
+          </SheetHeader>
+
           {editing && (
-            <div className="space-y-3 pt-1">
-              <div className="grid grid-cols-3 gap-2">
-                <div className="col-span-2"><label className="admin-label">தலைப்பு *</label><Input value={editing.title_ta} onChange={(e) => setEditing({ ...editing, title_ta: e.target.value })} /></div>
-                <div><label className="admin-label">Order</label><Input type="number" value={editing.order_num} onChange={(e) => setEditing({ ...editing, order_num: Number(e.target.value) })} /></div>
+            <div className="space-y-4 pt-4">
+              <div className="grid grid-cols-3 gap-3">
+                <div className="col-span-2">
+                  <label className="admin-label">தலைப்பு *</label>
+                  <Input
+                    value={editing.title_ta}
+                    onChange={(e) => setEditing({ ...editing, title_ta: e.target.value })}
+                    style={{ fontSize: "16px" }}
+                  />
+                </div>
+                <div>
+                  <label className="admin-label">Order</label>
+                  <Input
+                    type="number"
+                    value={editing.order_num}
+                    onChange={(e) => setEditing({ ...editing, order_num: Number(e.target.value) })}
+                    style={{ fontSize: "16px" }}
+                  />
+                </div>
               </div>
-              <div><label className="admin-label">Slug</label><Input value={editing.slug} onChange={(e) => setEditing({ ...editing, slug: e.target.value })} placeholder="auto" /></div>
-              <div><label className="admin-label">தேதி</label><Input type="date" value={editing.published_at || ""} onChange={(e) => setEditing({ ...editing, published_at: e.target.value || null })} /></div>
-              <div><label className="admin-label">விவரம்</label><Textarea value={editing.description || ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} rows={2} /></div>
+              <div>
+                <label className="admin-label">Slug</label>
+                <Input
+                  value={editing.slug}
+                  onChange={(e) => setEditing({ ...editing, slug: e.target.value })}
+                  placeholder="auto"
+                  style={{ fontSize: "16px" }}
+                />
+              </div>
+              <div>
+                <label className="admin-label">தேதி</label>
+                <Input
+                  type="date"
+                  value={editing.published_at || ""}
+                  onChange={(e) => setEditing({ ...editing, published_at: e.target.value || null })}
+                  style={{ fontSize: "16px" }}
+                />
+              </div>
+              <div>
+                <label className="admin-label">விவரம்</label>
+                <Textarea
+                  value={editing.description || ""}
+                  onChange={(e) => setEditing({ ...editing, description: e.target.value })}
+                  rows={3}
+                  style={{ fontSize: "16px" }}
+                />
+              </div>
             </div>
           )}
-          <DialogFooter className="mt-3">
-            <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>ரத்து</Button>
-            <Button size="sm" onClick={save} disabled={upsert.isPending}>{upsert.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />}சேமி</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+
+          <SheetFooter className="mt-5 flex-row gap-2 pb-2">
+            <Button variant="ghost" className="flex-1" onClick={() => setOpen(false)}>ரத்து</Button>
+            <Button className="flex-1" onClick={save} disabled={upsert.isPending}>
+              {upsert.isPending && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
+              சேமி
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

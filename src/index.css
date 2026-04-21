@@ -179,4 +179,24 @@
   .admin-label {
     @apply block text-xs font-semibold text-muted-foreground mb-1 tracking-wide;
   }
+
+  /* ─── Rich text inline images (Tiptap) ─── */
+  .rich-text-content img,
+  .ProseMirror img {
+    @apply rounded-xl max-w-full shadow-paper border border-border/30 my-4;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* ─── Inline YouTube iframes ─── */
+  .rich-text-content .yt-embed,
+  .ProseMirror .yt-embed {
+    @apply my-4;
+  }
+
+  /* ─── Bottom sheet safe area padding ─── */
+  .pb-safe {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
 }

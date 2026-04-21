@@ -1,0 +1,190 @@
+name: 🚀 Release — Android APK + Windows EXE
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'       # Trigger on version tags like v1.0.0, v1.2.3
+  workflow_dispatch:   # Allow manual trigger from GitHub UI
+
+jobs:
+  # ══════════════════════════════════════════════════════════════
+  # JOB 1: Build Android APKs (User + Admin)
+  # ══════════════════════════════════════════════════════════════
+  build-android:
+    name: 🤖 Build Android APKs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Install Dependencies
+        run: npm install --legacy-peer-deps
+
+      # Inject Supabase env vars from GitHub Secrets
+      - name: Create .env file
+        run: |
+          echo "VITE_SUPABASE_PROJECT_ID=${{ secrets.VITE_SUPABASE_PROJECT_ID }}" >> .env
+          echo "VITE_SUPABASE_PUBLISHABLE_KEY=${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}" >> .env
+          echo "VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}" >> .env
+
+      # Build User APK
+      - name: Build User Web App
+        run: npm run build:user
+
+      - name: Sync User to Android
+        run: npx cap sync android
+
+      - name: Build User APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleUserRelease || ./gradlew assembleUserDebug
+
+      # Build Admin APK
+      - name: Build Admin Web App
+        run: npm run build:admin
+
+      - name: Sync Admin to Android
+        run: npx cap sync android
+
+      - name: Build Admin APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleAdminRelease || ./gradlew assembleAdminDebug
+
+      # Rename APKs for clarity
+      - name: Rename APKs
+        run: |
+          find android/app/build/outputs/apk -name "*.apk" | head -5
+          mkdir -p release-artifacts
+          cp android/app/build/outputs/apk/user/*/app-user-*.apk release-artifacts/Venmurasu-Reader.apk 2>/dev/null || \
+          find android/app/build/outputs/apk/user -name "*.apk" -exec cp {} release-artifacts/Venmurasu-Reader.apk \;
+          cp android/app/build/outputs/apk/admin/*/app-admin-*.apk release-artifacts/Venmurasu-Admin.apk 2>/dev/null || \
+          find android/app/build/outputs/apk/admin -name "*.apk" -exec cp {} release-artifacts/Venmurasu-Admin.apk \;
+
+      - name: Upload APK Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apks
+          path: release-artifacts/*.apk
+          retention-days: 7
+
+  # ══════════════════════════════════════════════════════════════
+  # JOB 2: Build Windows Desktop App (Electron .exe)
+  # ══════════════════════════════════════════════════════════════
+  build-windows:
+    name: 🖥️ Build Windows Desktop App
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install --legacy-peer-deps
+
+      # Inject Supabase env vars
+      - name: Create .env file
+        shell: pwsh
+        run: |
+          "VITE_SUPABASE_PROJECT_ID=${{ secrets.VITE_SUPABASE_PROJECT_ID }}" | Out-File -FilePath .env -Encoding utf8
+          "VITE_SUPABASE_PUBLISHABLE_KEY=${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}" | Add-Content -Path .env
+          "VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}" | Add-Content -Path .env
+
+      # Build Vite web assets with electron mode (relative paths)
+      - name: Build Web Assets for Electron
+        run: npm run build:electron
+
+      # Package into Windows installer
+      - name: Build Electron Windows Installer
+        run: npx electron-builder --win --config electron-builder.json
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Windows Installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: dist-electron/*.exe
+          retention-days: 7
+
+  # ══════════════════════════════════════════════════════════════
+  # JOB 3: Create GitHub Release with all downloads
+  # ══════════════════════════════════════════════════════════════
+  create-release:
+    name: 📦 Create GitHub Release
+    needs: [build-android, build-windows]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Android APKs
+        uses: actions/download-artifact@v4
+        with:
+          name: android-apks
+          path: release-files/android
+
+      - name: Download Windows Installer
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-installer
+          path: release-files/windows
+
+      - name: List release files
+        run: find release-files -type f
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "வெண்முரசு ${{ github.ref_name }}"
+          body: |
+            ## வெண்முரசு — ${{ github.ref_name }} வெளியீடு 🎉
+
+            ### 📥 Downloads
+
+            | Platform | File | Description |
+            |----------|------|-------------|
+            | 🤖 Android | `Venmurasu-Reader.apk` | வெண்முரசு Reader App |
+            | 🤖 Android | `Venmurasu-Admin.apk` | Admin Management App |
+            | 🖥️ Windows | `venmurasu-setup-*.exe` | Windows Desktop Software |
+
+            ---
+
+            ### 📱 Android Install Steps
+            1. APK file download பண்ணுங்க
+            2. Phone Settings → Security → **Unknown sources** enable பண்ணுங்க
+            3. APK file-ஐ open பண்ணி install பண்ணுங்க
+
+            ### 💻 Windows Install Steps
+            1. `.exe` file download பண்ணுங்க
+            2. Double-click → Install பண்ணுங்க
+            3. Desktop-ல் icon create ஆகும்
+
+            ---
+            > ⚠️ Internet connection தேவை (Supabase cloud data)
+          files: |
+            release-files/android/*.apk
+            release-files/windows/*.exe
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

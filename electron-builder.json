@@ -1,0 +1,39 @@
+{
+  "appId": "com.venmurasu.app",
+  "productName": "வெண்முரசு",
+  "copyright": "Copyright © 2025 Venmurasu",
+  "directories": {
+    "output": "dist-electron",
+    "buildResources": "public"
+  },
+  "files": [
+    "dist/**/*",
+    "electron/**/*",
+    "package.json"
+  ],
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "public/favicon.ico"
+  },
+  "nsis": {
+    "oneClick": false,
+    "perMachine": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "வெண்முரசு"
+  },
+  "mac": {
+    "target": "dmg",
+    "icon": "public/favicon.ico"
+  },
+  "linux": {
+    "target": "AppImage",
+    "icon": "public/favicon.ico"
+  }
+}

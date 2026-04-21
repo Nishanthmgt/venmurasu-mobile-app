@@ -8,9 +8,11 @@ const __dirname = path.dirname(__filename);
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }: ConfigEnv) => ({
+  // Use './' base for Electron (file:// protocol requires relative paths)
+  base: mode === "electron" ? "./" : "/",
   server: {
     host: "::",
-    port: 8080,
+    port: 5173,
     hmr: {
       overlay: false,
     },

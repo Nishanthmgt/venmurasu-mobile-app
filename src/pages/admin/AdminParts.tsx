@@ -4,16 +4,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChevronLeft, Pencil, Plus, Trash2 } from "lucide-react";
+import { ChevronLeft, Pencil, Plus, Trash2, Loader2, X } from "lucide-react";
 import { slugify } from "@/lib/admin";
 import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { RichEditor } from "@/components/admin/RichEditor";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { YoutubeManager } from "@/components/admin/YoutubeManager";
@@ -33,12 +26,15 @@ const AdminParts = () => {
   const { chapterId = "" } = useParams();
   const qc = useQueryClient();
   const [editing, setEditing] = useState<Part | null>(null);
-  const [open, setOpen] = useState(false);
 
   const { data: chapter } = useQuery({
     queryKey: ["admin-chapter", chapterId],
     queryFn: async () => {
-      const { data, error } = await supabase.from("chapters").select("*, books(title_ta, id)").eq("id", chapterId).maybeSingle();
+      const { data, error } = await supabase
+        .from("chapters")
+        .select("*, books(title_ta, id)")
+        .eq("id", chapterId)
+        .maybeSingle();
       if (error) throw error;
       return data as any;
     },
@@ -73,7 +69,7 @@ const AdminParts = () => {
       qc.invalidateQueries({ queryKey: ["admin-parts", chapterId] });
       qc.invalidateQueries({ queryKey: ["parts", chapterId] });
       toast.success("சேமிக்கப்பட்டது");
-      setOpen(false);
+      setEditing(null);
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -100,7 +96,6 @@ const AdminParts = () => {
       image_urls: [],
       youtube_urls: [],
     });
-    setOpen(true);
   };
 
   const save = () => {
@@ -113,6 +108,99 @@ const AdminParts = () => {
 
   const backLink = chapter?.books?.id ? `/admin/books/${chapter.books.id}/chapters` : "/admin";
 
+  // ── Full-page editor view ──
+  if (editing) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        {/* Editor top bar */}
+        <div className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border px-4 h-14 flex items-center justify-between gap-3">
+          <button
+            onClick={() => {
+              if (confirm("Changes will be lost. Close?")) setEditing(null);
+            }}
+            className="text-muted-foreground hover:text-foreground p-1 rounded"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <span className="font-serif font-semibold text-primary truncate flex-1 text-sm">
+            {editing.id ? "பகுதி திருத்து" : "புதிய பகுதி"}
+          </span>
+          <Button size="sm" onClick={save} disabled={upsert.isPending} className="shrink-0">
+            {upsert.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+            சேமி
+          </Button>
+        </div>
+
+        {/* Editor body */}
+        <div className="flex-1 container max-w-3xl px-4 py-5 space-y-5 pb-24">
+          {/* Title + Order */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="col-span-2">
+              <label className="admin-label">தலைப்பு *</label>
+              <Input
+                value={editing.title_ta}
+                onChange={(e) => setEditing({ ...editing, title_ta: e.target.value })}
+                style={{ fontSize: "16px" }}
+                placeholder="பகுதி தலைப்பு"
+              />
+            </div>
+            <div>
+              <label className="admin-label">Order</label>
+              <Input
+                type="number"
+                value={editing.order_num}
+                onChange={(e) => setEditing({ ...editing, order_num: Number(e.target.value) })}
+                style={{ fontSize: "16px" }}
+              />
+            </div>
+          </div>
+
+          {/* Slug */}
+          <div>
+            <label className="admin-label">Slug</label>
+            <Input
+              value={editing.slug}
+              onChange={(e) => setEditing({ ...editing, slug: e.target.value })}
+              placeholder="auto-generated"
+              style={{ fontSize: "16px" }}
+            />
+          </div>
+
+          {/* Rich text content — images/videos insert inline here */}
+          <div>
+            <label className="admin-label mb-2">உள்ளடக்கம் (Content)</label>
+            <p className="text-[11px] text-muted-foreground mb-2">
+              💡 Toolbar-ல் உள்ள <strong>படம்</strong> / <strong>வீடியோ</strong> button-ஐ press பண்ணி paragraph-க்கு இடையே insert பண்ணலாம்.
+            </p>
+            <RichEditor
+              value={editing.content || ""}
+              onChange={(html) => setEditing({ ...editing, content: html })}
+            />
+          </div>
+
+          {/* Extra images (appendix) */}
+          <div>
+            <label className="admin-label mb-1">கூடுதல் படங்கள் (Content க்கு கீழே)</label>
+            <ImageUploader
+              value={editing.image_urls}
+              onChange={(urls) => setEditing({ ...editing, image_urls: urls })}
+            />
+          </div>
+
+          {/* YouTube URLs (appendix) */}
+          <div>
+            <label className="admin-label mb-1">கூடுதல் YouTube வீடியோக்கள் (Content க்கு கீழே)</label>
+            <YoutubeManager
+              value={editing.youtube_urls}
+              onChange={(urls) => setEditing({ ...editing, youtube_urls: urls })}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Parts list view ──
   return (
     <div className="admin-page">
       <Button asChild variant="ghost" size="sm" className="text-muted-foreground -ml-2 h-8 text-xs">
@@ -134,65 +222,28 @@ const AdminParts = () => {
             <div className="flex-1 min-w-0">
               <div className="admin-card-title">{p.title_ta}</div>
               <div className="admin-card-sub">
-                {(p.image_urls?.length ?? 0) > 0 && `${p.image_urls.length} 🖼 `}
-                {(p.youtube_urls?.length ?? 0) > 0 && `${p.youtube_urls.length} ▶ `}
-                {(p.content?.length ?? 0) > 0 && `${Math.round((p.content?.length || 0) / 50) / 10}k chars`}
+                {(p.image_urls?.length ?? 0) > 0 && `${p.image_urls.length} 🖼 `}
+                {(p.youtube_urls?.length ?? 0) > 0 && `${p.youtube_urls.length} ▶ `}
+                {(p.content?.length ?? 0) > 0 && `${Math.round((p.content?.length || 0) / 50) / 10}k chars`}
               </div>
             </div>
-            <div className="admin-card-actions">
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditing(p); setOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => confirm("Delete part?") && del.mutate(p.id)}><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
+            <div className="flex items-center gap-1">
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditing(p)}>
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => confirm("Delete part?") && del.mutate(p.id)}
+              >
+                <Trash2 className="h-3.5 w-3.5 text-destructive" />
+              </Button>
             </div>
           </div>
         ))}
         {parts.length === 0 && <div className="admin-empty">பகுதிகள் இல்லை</div>}
       </div>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editing?.id ? "பகுதி திருத்து" : "புதிய பகுதி"}</DialogTitle>
-          </DialogHeader>
-          {editing && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-3 gap-2">
-                <div className="col-span-2">
-                  <label className="text-xs text-muted-foreground">தலைப்பு</label>
-                  <Input value={editing.title_ta} onChange={(e) => setEditing({ ...editing, title_ta: e.target.value })} />
-                </div>
-                <div>
-                  <label className="text-xs text-muted-foreground">Order</label>
-                  <Input
-                    type="number"
-                    value={editing.order_num}
-                    onChange={(e) => setEditing({ ...editing, order_num: Number(e.target.value) })}
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground">Slug</label>
-                <Input value={editing.slug} onChange={(e) => setEditing({ ...editing, slug: e.target.value })} />
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground mb-1 block">உள்ளடக்கம்</label>
-                <RichEditor value={editing.content || ""} onChange={(html) => setEditing({ ...editing, content: html })} />
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground mb-1 block">படங்கள்</label>
-                <ImageUploader value={editing.image_urls} onChange={(urls) => setEditing({ ...editing, image_urls: urls })} />
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground mb-1 block">YouTube வீடியோக்கள்</label>
-                <YoutubeManager value={editing.youtube_urls} onChange={(urls) => setEditing({ ...editing, youtube_urls: urls })} />
-              </div>
-            </div>
-          )}
-          <DialogFooter className="sticky bottom-0 bg-background pt-4">
-            <Button variant="ghost" onClick={() => setOpen(false)}>ரத்து</Button>
-            <Button onClick={save} disabled={upsert.isPending}>சேமி</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
