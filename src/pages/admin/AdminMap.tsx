@@ -28,19 +28,19 @@ const AdminMap = () => {
   const { data: locations = [], isLoading } = useQuery({
     queryKey: ["admin-map-locations"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("map_locations").select("*").order("name");
+      const { data, error } = await (supabase as any).from("map_locations").select("*").order("name");
       if (error) throw error;
-      return data as MapLocation[];
+      return (data ?? []) as MapLocation[];
     },
   });
 
   const upsert = useMutation({
     mutationFn: async (l: Partial<MapLocation>) => {
       if (l.id) {
-        const { error } = await supabase.from("map_locations").update(l).eq("id", l.id);
+        const { error } = await (supabase as any).from("map_locations").update(l).eq("id", l.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("map_locations").insert(l as any);
+        const { error } = await (supabase as any).from("map_locations").insert(l);
         if (error) throw error;
       }
     },
@@ -56,7 +56,7 @@ const AdminMap = () => {
 
   const del = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("map_locations").delete().eq("id", id);
+      const { error } = await (supabase as any).from("map_locations").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
