@@ -32,16 +32,14 @@ const AllBooks = () => {
                       className="absolute inset-0 w-full h-full object-cover"
                     />
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
                   <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-accent/80 to-accent/40" />
-                  <div className="absolute inset-x-3 bottom-3 text-white">
-                    <div className="text-[10px] uppercase tracking-[0.2em] opacity-90">நூல் {b.order_num}</div>
-                    <div className="font-serif text-base leading-tight line-clamp-2 drop-shadow">{b.title_ta}</div>
-                  </div>
                 </div>
-                {b.subtitle && (
-                  <div className="mt-2 text-center text-sm text-muted-foreground font-serif">{b.subtitle}</div>
-                )}
+                <div className="mt-2 text-center">
+                  <div className="font-serif text-sm text-foreground leading-tight line-clamp-2">{b.title_ta}</div>
+                  {b.subtitle && (
+                    <div className="text-xs text-muted-foreground font-serif mt-0.5 line-clamp-1">{b.subtitle}</div>
+                  )}
+                </div>
               </Link>
             ))}
           </div>

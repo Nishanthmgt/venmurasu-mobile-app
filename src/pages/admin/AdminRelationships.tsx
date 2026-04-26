@@ -31,6 +31,7 @@ type Character = {
   id: string;
   community_id: string;
   parent_id: string | null;
+  mother_id: string | null;
   name: string;
   description: string | null;
   order_num: number;
@@ -196,6 +197,7 @@ const AdminRelationships = () => {
       name: "", 
       description: "", 
       parent_id: null,
+      mother_id: null,
       order_num: characters.length
     });
     setOpenChar(true);
@@ -316,16 +318,33 @@ const AdminRelationships = () => {
               <Input value={editingChar?.name || ""} onChange={e => setEditingChar({...editingChar!, name: e.target.value})} />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">பெற்றோர் (Parent)</label>
+              <label className="text-sm font-medium">தந்தை (Father / Parent)</label>
               <Select 
                 value={editingChar?.parent_id || "none"} 
                 onValueChange={v => setEditingChar({...editingChar!, parent_id: v === "none" ? null : v})}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="பெற்றோரைத் தேர்ந்தெடுக்கவும்" />
+                  <SelectValue placeholder="தந்தையைத் தேர்ந்தெடுக்கவும்" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">யாருமில்லை (Root)</SelectItem>
+                  {characters.filter(c => c.id !== editingChar?.id).map(c => (
+                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">தாய் (Mother)</label>
+              <Select 
+                value={editingChar?.mother_id || "none"} 
+                onValueChange={v => setEditingChar({...editingChar!, mother_id: v === "none" ? null : v})}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="தாயைத் தேர்ந்தெடுக்கவும்" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">யாருமில்லை</SelectItem>
                   {characters.filter(c => c.id !== editingChar?.id).map(c => (
                     <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                   ))}

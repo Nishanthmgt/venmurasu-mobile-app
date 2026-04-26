@@ -17,6 +17,7 @@ export type Character = {
   id: string;
   community_id: string;
   parent_id: string | null;
+  mother_id: string | null;
   name: string;
   description: string | null;
   order_num: number;
