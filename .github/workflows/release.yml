@@ -129,11 +129,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Windows Installer
+      - name: Upload Windows Archive
         uses: actions/upload-artifact@v4
         with:
-          name: windows-installer
-          path: dist-electron/*.exe
+          name: windows-archive
+          path: dist-electron/*.zip
           retention-days: 7
 
   # ══════════════════════════════════════════════════════════════
@@ -151,10 +151,10 @@ jobs:
           name: android-apks
           path: release-files/android
 
-      - name: Download Windows Installer
+      - name: Download Windows Archive
         uses: actions/download-artifact@v4
         with:
-          name: windows-installer
+          name: windows-archive
           path: release-files/windows
 
       - name: List release files
@@ -173,7 +173,7 @@ jobs:
             |----------|------|-------------|
             | 🤖 Android | `Venmurasu-Reader.apk` | வெண்முரசு Reader App |
             | 🤖 Android | `Venmurasu-Admin.apk` | Admin Management App |
-            | 🖥️ Windows | `venmurasu-setup-*.exe` | Windows Desktop Software |
+            | 🖥️ Windows | `Venmurasu-*.zip` | Windows Portable App (ZIP) |
 
             ---
 
@@ -183,15 +183,15 @@ jobs:
             3. APK file-ஐ open பண்ணி install பண்ணுங்க
 
             ### 💻 Windows Install Steps
-            1. `.exe` file download பண்ணுங்க
-            2. Double-click → Install பண்ணுங்க
-            3. Desktop-ல் icon create ஆகும்
+            1. `.zip` file download பண்ணுங்க
+            2. Extract பண்ணுங்க
+            3. `Venmurasu.exe` file-ஐ Double-click பண்ணி Open பண்ணுங்க
 
             ---
             > ⚠️ Internet connection தேவை (Supabase cloud data)
           files: |
             release-files/android/*.apk
-            release-files/windows/*.exe
+            release-files/windows/*.zip
           draft: false
           prerelease: false
         env:
