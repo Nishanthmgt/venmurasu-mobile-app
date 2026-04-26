@@ -2,6 +2,8 @@
   "name": "venmurasu",
   "private": true,
   "version": "1.0.0",
+  "description": "Venmurasu Epic Reading Application",
+  "author": "Venmurasu",
   "type": "module",
   "main": "electron/main.js",
   "scripts": {

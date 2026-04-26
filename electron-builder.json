@@ -1,6 +1,6 @@
 {
   "appId": "com.venmurasu.app",
-  "productName": "வெண்முரசு",
+  "productName": "Venmurasu",
   "copyright": "Copyright © 2025 Venmurasu",
   "directories": {
     "output": "dist-electron",
@@ -26,7 +26,7 @@
     "allowToChangeInstallationDirectory": true,
     "createDesktopShortcut": true,
     "createStartMenuShortcut": true,
-    "shortcutName": "வெண்முரசு"
+    "shortcutName": "Venmurasu"
   },
   "mac": {
     "target": "dmg",
