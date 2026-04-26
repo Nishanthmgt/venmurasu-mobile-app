@@ -129,6 +129,12 @@ const Index = () => {
             </Link>
           ))}
         </section>
+
+        <section className="mt-10 py-4 px-4 paper-card rounded-lg border border-accent/20 text-center">
+          <p className="text-sm text-muted-foreground font-serif">
+            App will be launching soon on <span className="font-semibold text-primary">Google Play Store</span>
+          </p>
+        </section>
       </main>
     </div>
   );
