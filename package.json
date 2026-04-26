@@ -5,7 +5,7 @@
   "description": "Venmurasu Epic Reading Application",
   "author": "Venmurasu",
   "type": "module",
-  "main": "electron/main.js",
+  "main": "electron/main.cjs",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -18,7 +18,7 @@
     "sync:admin": "npm run build:admin && npx cap sync",
     "test": "vitest run",
     "test:watch": "vitest",
-    "build:electron": "vite build --mode electron",
+    "build:electron": "npx cross-env VITE_APP_MODE=admin vite build --mode electron",
     "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
     "electron:build": "npm run build:electron && electron-builder --config electron-builder.json"
   },
