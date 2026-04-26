@@ -18,10 +18,10 @@
     "sync:admin": "npm run build:admin && npx cap sync",
     "test": "vitest run",
     "test:watch": "vitest",
-    "build:electron": "npx cross-env VITE_APP_MODE=admin vite build --mode electron",
+    "build:electron:user": "npx cross-env VITE_APP_MODE=user vite build --mode electron",
+    "build:electron:admin": "npx cross-env VITE_APP_MODE=admin vite build --mode electron",
     "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
-    "electron:admin": "npx cross-env VITE_APP_MODE=admin concurrently \"vite --mode electron\" \"wait-on http://localhost:5173 && electron .\"",
-    "electron:build": "npm run build:electron && electron-builder --config electron-builder.json"
+    "electron:admin": "npx cross-env VITE_APP_MODE=admin concurrently \"vite --mode electron\" \"wait-on http://localhost:5173 && electron .\""
   },
   "dependencies": {
     "@capacitor/android": "^6.0.0",

@@ -119,22 +119,43 @@ jobs:
           "VITE_SUPABASE_PUBLISHABLE_KEY=$env:SUPABASE_PUBLISHABLE_KEY" | Add-Content -Path .env -Encoding utf8NoBOM
           "VITE_SUPABASE_URL=$env:SUPABASE_URL" | Add-Content -Path .env -Encoding utf8NoBOM
 
-      # Build Vite web assets with electron mode (relative paths)
-      - name: Build Web Assets for Electron
-        run: npm run build:electron
+      - name: Build Admin Web Assets
+        run: npm run build:electron:admin
 
-      # Package into Windows installer
-      - name: Build Electron Windows Installer
+      - name: Package Admin App
         run: npx electron-builder --win --config electron-builder.json
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
+          
+      - name: Rename Admin Package
+        shell: pwsh
+        run: |
+          mkdir release-windows
+          Get-ChildItem -Path dist-electron\*.zip | Rename-Item -NewName "Venmurasu-Admin-win.zip"
+          Move-Item -Path dist-electron\Venmurasu-Admin-win.zip -Destination release-windows\
+          Remove-Item -Recurse -Force dist-electron
+          
+      - name: Build User Web Assets
+        run: npm run build:electron:user
 
-      - name: Upload Windows Archive
+      - name: Package User App
+        run: npx electron-builder --win --config electron-builder.json
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+          
+      - name: Rename User Package
+        shell: pwsh
+        run: |
+          Get-ChildItem -Path dist-electron\*.zip | Rename-Item -NewName "Venmurasu-User-win.zip"
+          Move-Item -Path dist-electron\Venmurasu-User-win.zip -Destination release-windows\
+
+      - name: Upload Windows Archives
         uses: actions/upload-artifact@v4
         with:
-          name: windows-archive
-          path: dist-electron/*.zip
+          name: windows-archives
+          path: release-windows/*.zip
           retention-days: 7
 
   # ══════════════════════════════════════════════════════════════
@@ -152,10 +173,10 @@ jobs:
           name: android-apks
           path: release-files/android
 
-      - name: Download Windows Archive
+      - name: Download Windows Archives
         uses: actions/download-artifact@v4
         with:
-          name: windows-archive
+          name: windows-archives
           path: release-files/windows
 
       - name: List release files
@@ -174,7 +195,8 @@ jobs:
             |----------|------|-------------|
             | 🤖 Android | `Venmurasu-Reader.apk` | வெண்முரசு Reader App |
             | 🤖 Android | `Venmurasu-Admin.apk` | Admin Management App |
-            | 🖥️ Windows | `Venmurasu-*.zip` | Windows Portable App (ZIP) |
+            | 🖥️ Windows | `Venmurasu-User-win.zip` | Windows Reader App |
+            | 🖥️ Windows | `Venmurasu-Admin-win.zip` | Windows Admin App |
 
             ---
 
