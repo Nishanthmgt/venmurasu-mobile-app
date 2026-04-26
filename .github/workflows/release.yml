@@ -125,7 +125,6 @@ jobs:
       - name: Package Admin App
         run: npx electron-builder --win --config electron-builder.json
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
           
       - name: Rename Admin Package
@@ -142,7 +141,6 @@ jobs:
       - name: Package User App
         run: npx electron-builder --win --config electron-builder.json
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
           
       - name: Rename User Package
